@@ -11,6 +11,7 @@ A Claude Code **plugin + marketplace** that packages a disciplined *Loop Enginee
 | `/loop-eng` command | The **orchestrator**. Owns control flow, git, the frozen rubric, and all on-disk review artifacts. |
 | `loop-implementer` agent | The **Implementer**. Turns requirements + reviewer feedback into minimal, in-scope changes. Never self-approves, never touches git. |
 | `loop-impl-reviewer` agent | The **Reviewer**. A binary quality gate — judges the *actual git diff* against a frozen rubric, runs the project's tests for external grounding, and returns `APPROVED` / `NEEDS_ITERATION`. |
+| `loop-engineering` skill | A thin, model-loadable entry point that routes to the same procedure as `/loop-eng`. Its purpose is composition — so a short `/goal` can invoke the whole discipline without pasting it. |
 
 ## How the loop works
 
@@ -93,6 +94,17 @@ What happens each round:
 Because the Reviewer runs the **same command your GitHub Action runs**, a green loop means the pipeline should pass too — *before you ever push*. When it approves, you get one clean squashed commit ready to push and let CI confirm.
 
 > **Scope note:** the loop runs locally on an isolated branch and never auto-pushes, so it drives your code to a state that *will* pass CI rather than polling live GitHub Actions runs. A heavier variant that pushes each round and gates on the real Actions result (`gh run watch`) is possible but opt-in — [open an issue](https://github.com/MinJung-Go/claude-loop-eng/issues) if you want it.
+
+## Driving it autonomously with `/goal`
+
+Claude Code's `/goal <condition>` loops turn-by-turn on its own until a completion condition holds. Instead of pasting the whole methodology into the goal, invoke the bundled `loop-engineering` skill and let a crisp sentinel be the condition:
+
+```
+/goal Use the loop-engineering skill to implement <requirements>.
+DONE WHEN: loop-impl-reviewer's latest verdict is APPROVED, every rubric item is SATISFIED, and the test command exits 0 — and that verdict appears verbatim in the final message.
+```
+
+Why a sentinel: `/goal`'s completion check is a small, fast evaluator reading the transcript — it can't re-judge the whole methodology. So the **hard judgment stays with `loop-impl-reviewer`** (frozen rubric + real diff + real tests), and the evaluator only pattern-matches the `APPROVED` verdict it echoes. Pair with **auto mode** for unattended runs.
 
 ## Notes
 

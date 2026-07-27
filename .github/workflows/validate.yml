@@ -1,0 +1,26 @@
+name: Validate marketplace & plugin
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate JSON manifests
+        run: |
+          for f in .claude-plugin/marketplace.json plugins/*/.claude-plugin/plugin.json; do
+            echo "Validating $f"
+            python3 -c "import json,sys; json.load(open('$f'))"
+          done
+
+      - name: Check required files exist
+        run: |
+          test -f .claude-plugin/marketplace.json
+          test -f plugins/loop-eng/.claude-plugin/plugin.json
+          test -f plugins/loop-eng/commands/loop-eng.md
+          test -f plugins/loop-eng/agents/loop-implementer.md
+          test -f plugins/loop-eng/agents/loop-impl-reviewer.md
+          echo "All required files present."

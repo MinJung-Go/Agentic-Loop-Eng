@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "loop-eng",
+  "displayName": "Loop Engineering",
+  "version": "0.1.0",
+  "description": "Iterative implementer↔reviewer Loop Engineering: a /loop-eng command drives an Implementer and a Reviewer subagent through generate→critique→revise cycles until every frozen rubric item is SATISFIED, with git checkpointing, SHA-scoped review, and versioned review artifacts.",
+  "author": {
+    "name": "MinJung-Go",
+    "url": "https://github.com/MinJung-Go"
+  },
+  "homepage": "https://github.com/MinJung-Go/claude-loop-eng",
+  "repository": "https://github.com/MinJung-Go/claude-loop-eng",
+  "license": "MIT",
+  "keywords": [
+    "loop-engineering",
+    "agentic-coding",
+    "reviewer",
+    "implementer",
+    "evaluator-optimizer",
+    "self-refine",
+    "multi-agent"
+  ]
+}

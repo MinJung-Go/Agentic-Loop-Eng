@@ -1,0 +1,82 @@
+# Loop Engineering for Claude Code
+
+A Claude Code **plugin + marketplace** that packages a disciplined *Loop Engineering* workflow: a `/loop-eng` command drives an **Implementer** and a **Reviewer** subagent through `generate → critique → revise` cycles until every acceptance-criterion is met — grounded in git and real test runs, not vibes.
+
+> Loop Engineering is the 2026 name for the evaluator-optimizer / reflect-refine pattern (research lineage: Self-Refine → Reflexion → CRITIC). One agent generates, a *different* agent critiques against a fixed rubric, and the loop repeats until it passes or hits a limit.
+
+## What's inside
+
+| Component | Role |
+|---|---|
+| `/loop-eng` command | The **orchestrator**. Owns control flow, git, the frozen rubric, and all on-disk review artifacts. |
+| `loop-implementer` agent | The **Implementer**. Turns requirements + reviewer feedback into minimal, in-scope changes. Never self-approves, never touches git. |
+| `loop-impl-reviewer` agent | The **Reviewer**. A binary quality gate — judges the *actual git diff* against a frozen rubric, runs the project's tests for external grounding, and returns `APPROVED` / `NEEDS_ITERATION`. |
+
+## How the loop works
+
+```
+/loop-eng <requirements | path/to/spec.md> [--max N]
+
+Preflight   clean working tree? → record base SHA → cut an isolated branch loop-eng/<slug>-<run>
+Freeze      write verbatim requirements.md + a frozen rubric.md (R1..Rn) — the fixed yardstick
+Each round  Implementer edits → orchestrator checkpoint-commits → Reviewer verifies
+              git diff <base>..HEAD  +  runs the project's tests
+              per-rubric verdict: R1 SATISFIED / R3 MISSING ...
+            APPROVED  → done      NEEDS_ITERATION → feed failing R-ids back, next round
+            regression? (a passing item went red) → git reset to last-good checkpoint
+Stop        every rubric item SATISFIED & tests green, OR max rounds, OR reviewer blocked
+Wrap-up     write summary.md; offer to squash the WIP checkpoints into one clean commit
+            (never auto-pushes, never auto-merges)
+```
+
+Every run leaves a diffable audit trail:
+
+```
+docs/reviews/loop-eng/<slug>-<run>/
+  requirements.md      # verbatim user input — the immutable baseline
+  rubric.md            # frozen R1..Rn acceptance criteria
+  round-01-review.md   # per-round verdict, SHA, rubric coverage table, test result
+  round-02-review.md
+  summary.md
+```
+
+## Design principles baked in
+
+- **Ground the reviewer in reality** — it reviews the real `git diff` by SHA range and *runs the tests*; the Implementer's self-report is treated as an unverified claim, never as evidence.
+- **Freeze the rubric** — the same yardstick every round, so verdicts are comparable and don't drift round-to-round.
+- **Separate roles** — the Implementer never self-approves; the Reviewer never edits code. Approval is a gate, not a self-assessment.
+- **Git-native** — one round = one checkpoint = one review file, all on a throwaway branch. Bad rounds roll back; the human owns the merge.
+
+## Install
+
+```bash
+# add this marketplace
+/plugin marketplace add MinJung-Go/claude-loop-eng
+
+# install the plugin
+/plugin install loop-eng@minjung-go
+
+# reload to activate
+/reload-plugins
+```
+
+Then run, e.g.:
+
+```bash
+/loop-eng Add retry-with-exponential-backoff to fetch_url on 5xx responses, cap 3 retries --max 4
+```
+
+Or point it at a spec file:
+
+```bash
+/loop-eng docs/specs/new-feature.md
+```
+
+## Notes
+
+- The command prompt is written in Chinese (the author's working language); the agents and this README are in English. The workflow is language-agnostic — the Reviewer matches the language of your requirements while keeping the `APPROVED` / `NEEDS_ITERATION` keyword in English so the loop can parse it.
+- The Reviewer runs your project's own test command for grounding; point it at whatever your repo documents (in `CLAUDE.md` / `AGENTS.md` / `README`).
+
+## License
+
+MIT © MinJung-Go

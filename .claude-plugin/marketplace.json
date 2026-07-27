@@ -1,0 +1,24 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "minjung-go",
+  "description": "MinJung-Go's Claude Code plugin marketplace.",
+  "owner": {
+    "name": "MinJung-Go",
+    "url": "https://github.com/MinJung-Go"
+  },
+  "plugins": [
+    {
+      "name": "loop-eng",
+      "source": "./plugins/loop-eng",
+      "description": "Iterative implementer↔reviewer Loop Engineering with git checkpointing, a frozen acceptance rubric, tool-grounded review, and versioned review artifacts.",
+      "category": "development",
+      "keywords": [
+        "loop-engineering",
+        "agentic-coding",
+        "reviewer",
+        "implementer",
+        "multi-agent"
+      ]
+    }
+  ]
+}

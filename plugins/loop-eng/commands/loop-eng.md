@@ -51,22 +51,15 @@ Maintain a variable `feedback` (initially empty). Starting from round 1, run at 
 
 **Round i:**
 
-1. **Implement (cooperative parallel — a flat set of implementers)** — a round is implemented by one *or several* `loop-implementer` agents that **cooperate on disjoint slices of the same round**, not by competing on the same task. You (the Orchestrator) spawn them as a flat set via the Agent tool — never nested, never a workflow.
+1. **Implement** — call a single `loop-implementer` via the Agent tool; the prompt MUST include:
+   - the full REQUIREMENTS for this round;
+   - if `feedback` is non-empty, attach verbatim the previous round's reviewer **remaining list / failing rubric IDs**, stating "this is Reviewer feedback, resolve each item";
+   - a request for the standard handoff block (which files changed, how each requirement/feedback item was resolved).
+   - Note: the implementer **only edits the working tree and performs no git operations** (commit/branch/reset/push are all yours) — see its agent definition.
 
-   a. **Partition the work.** Take what must be done this round (the full REQUIREMENTS on round 1; the reviewer's failing rubric items on later rounds) and split it into independent sub-tasks partitioned by **disjoint file/module ownership** — each sub-task names the exact files/areas it owns.
+   > *Optional, large tasks only:* if a round's work splits cleanly into **file-disjoint** slices, you may fan out one `loop-implementer` per slice in a single message (each told to edit only its own files — they share one working tree with no isolation, so overlap would clobber). Skip this for anything small or coupled; a single implementer is the default.
 
-   b. **Fan out only if the partition is clean.** Spawn one `loop-implementer` per partition **in parallel — issue all the Agent calls in a single message so they run concurrently**. The implementers share one working tree with no isolation, so this is safe **only when no two sub-tasks touch the same file**; disjoint ownership is exactly what stops them from clobbering each other. If the work cannot be cleanly partitioned (shared files, tight coupling) or is simply small, **do NOT fan out — use a single implementer** this round.
-
-   c. **Each implementer's prompt MUST include:**
-      - the full verbatim REQUIREMENTS (as shared context so each slice fits the whole);
-      - **its own sub-task and its exact file-ownership set**, with a hard boundary: "edit ONLY files in your ownership set; do NOT touch files owned by another sub-task — a sibling implementer is handling those in parallel";
-      - the feedback items (referenced by rubric ID) that fall inside its slice, if `feedback` is non-empty;
-      - a request for the standard handoff block (which files changed, how each item was resolved).
-      - Note: implementers **only edit the working tree and perform no git operations** (commit/branch/reset/push are all yours) — see the agent definition.
-
-   d. **Collect + reconcile.** Once all implementers hand back, their edits compose directly in the shared working tree (disjoint files → no merge conflict). If two unexpectedly touched the same file, treat it as a partition error: re-run just that overlap with a single implementer to reconcile before the checkpoint.
-
-2. **Checkpoint** — once all implementers have handed back and their slices are reconciled, you (the Orchestrator) commit this round's snapshot:
+2. **Checkpoint** — once the implementer has handed back (or all of them, if you fanned out), you (the Orchestrator) commit this round's snapshot:
    - `git add -A && git commit -m "loop-eng <slug> round NN [WIP]"` (NN zero-padded to two digits);
    - `sha_i=$(git rev-parse HEAD)`, and remember the previous round's `sha_{i-1}` (for round 1 the previous is `base_sha`).
    - These are WIP snapshots that get squashed at wrap-up, so the message is free-form (no need to follow the project's commit conventions — only the post-squash commit needs that).

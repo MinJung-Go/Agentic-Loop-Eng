@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "loop-eng",
   "displayName": "Loop Engineering",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Iterative implementer↔reviewer Loop Engineering: a /loop-eng command drives an Implementer and a Reviewer subagent through generate→critique→revise cycles until every frozen rubric item is SATISFIED, with git checkpointing, SHA-scoped review, and versioned review artifacts.",
   "author": {
     "name": "MinJung-Go",

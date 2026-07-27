@@ -97,7 +97,12 @@ Because the Reviewer runs the **same command your GitHub Action runs**, a green 
 
 ## Driving it autonomously with `/goal`
 
-Claude Code's `/goal <condition>` loops turn-by-turn on its own until a completion condition holds — a small, fast evaluator checks after each turn and starts the next one if it isn't met yet. Instead of pasting the whole methodology into the goal, invoke the bundled `loop-engineering` skill and let a crisp sentinel be the condition.
+This is a **second, independent way** to run the discipline — it does not use the `/loop-eng` command at all. The insight: `/goal` already *is* a Loop Engineering loop. `/goal <condition>` supplies both halves for you:
+
+- **the loop** — after each turn it automatically starts the next until the condition holds;
+- **the gate/reviewer** — a small, fast evaluator checks the condition against the transcript after every turn.
+
+So you don't reimplement a loop or a reviewer. The bundled `loop-engineering` skill supplies the other half — a disciplined per-turn implementer that **surfaces objective, tool-run evidence** so `/goal`'s built-in gate can judge on facts, not vibes.
 
 ### Walkthrough
 
@@ -109,24 +114,23 @@ Claude Code's `/goal <condition>` loops turn-by-turn on its own until a completi
 /reload-plugins
 ```
 
-**2. (Optional) enable auto mode** so the loop can run unattended without stopping for tool-permission prompts:
+**2. (Optional) enable auto mode** so the loop runs unattended without stopping for tool-permission prompts:
 
 ```
 /auto
 ```
 
-**3. Fire the goal.** Put the requirements in the directive and a checkable sentinel in `DONE WHEN`. Example — make the CI command pass:
+**3. Fire the goal.** Requirements in the directive; an **objective, transcript-checkable** predicate in `DONE WHEN`. Example — make the CI command pass:
 
 ```
-/goal Use the loop-engineering skill to implement the following on a fresh isolation branch.
-REQUIREMENTS: make `npm run ci` pass on this branch — fix the failing type-checks and unit tests; do not weaken or delete the tests.
-DONE WHEN: loop-impl-reviewer's latest verdict is APPROVED, every rubric item is SATISFIED, and `npm run ci` exits 0 — and that verdict appears verbatim in the final message.
+/goal Follow the loop-engineering skill. REQUIREMENTS: make `npm run ci` pass on this branch — fix the failing type-checks and unit tests; do not weaken or delete any test.
+DONE WHEN: the latest turn runs `npm run ci`, shows its full output, and it exits 0 — and no test file was deleted or weakened.
 ```
 
-What now happens, hands-off, each turn = one round:
-- turn 1 freezes a rubric (e.g. `R1: \`npm run ci\` exits 0`, `R2: no test is deleted or weakened`) and does the first implement → checkpoint → review pass;
-- if the reviewer returns `NEEDS_ITERATION`, `/goal` automatically starts the next turn with the failing rubric IDs fed back;
-- when `loop-impl-reviewer` returns `APPROVED` with every item SATISFIED and `npm run ci` green, the turn echoes that verdict verbatim, the evaluator matches the sentinel, and **`/goal` clears itself** — the loop stops.
+What happens, hands-off:
+- **each turn**, the skill makes the next increment, then actually runs `npm run ci` and pastes the command + full output + exit code into the turn;
+- **`/goal`'s evaluator** reads that transcript and decides: not green → it automatically starts another turn (the failing output is the next turn's feedback);
+- green + condition satisfied → `/goal` **clears itself** and stops. No custom reviewer, no custom loop — `/goal` is both.
 
 **4. Watch or stop it:**
 
@@ -135,7 +139,11 @@ What now happens, hands-off, each turn = one round:
 /goal clear      # stop early
 ```
 
-When it finishes you're left with a clean squashed commit on the loop branch plus the review trail under `docs/reviews/loop-eng/…`, ready for you to push and let real CI confirm.
+### Why it stays honest
+
+`/goal`'s evaluator reads the transcript and **cannot run tools itself** — so the skill's job is to write the `DONE WHEN` as an *objective* check and to **surface real command output every turn**. A condition like "`npm run ci` exits 0 (output shown)" is something a small model can verify reliably; "the code is clean" is not. The skill also forbids the agent from fabricating evidence or self-declaring done — completion is the evaluator's call on real output. (For a *deterministic* gate rather than a transcript-reading one, add a **Stop hook** that runs the checks as a script; that's a separate mechanism, with `/goal` still driving the loop.)
+
+> This `/goal` path is independent of `/loop-eng`. Use `/loop-eng` for a manual single-shot run (it carries its own loop, rubric, and reviewer agent); use `/goal` + the skill for autonomous iteration. They intentionally differ.
 
 ### Why the sentinel matters
 

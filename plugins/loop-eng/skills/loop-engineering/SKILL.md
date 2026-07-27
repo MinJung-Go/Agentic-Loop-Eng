@@ -1,13 +1,13 @@
 ---
 name: loop-engineering
-description: Lightweight companion for driving a task to completion with Claude Code's /goal — keep each turn honest so /goal's own evaluator can decide when it's done. Use for autonomous "keep going until it works" runs ("loop until tests/CI are green", "keep iterating until X passes", "autonomously finish X"). Not a heavy verification harness — for strong, independent diff+test review use the /loop-eng command instead.
+description: Lightweight companion for driving a task to completion with Claude Code's /goal — keep each turn honest so /goal's own evaluator can decide when it's done. Use for autonomous "keep going until it works" runs ("loop until tests/CI are green", "keep iterating until X passes", "autonomously finish X"). Deliberately light — a quick autonomous loop, not a strong-verification harness.
 ---
 
 # Loop Engineering with `/goal` (lightweight)
 
 `/goal <condition>` is already a complete loop: it re-runs turns until a fresh evaluator model decides the condition holds, and that evaluator is a *different* model from the one doing the work (so you can't rubber-stamp your own work). The one catch: **the evaluator only reads the conversation — it can't run commands or read files.**
 
-This skill is the light companion for that loop. It deliberately adds **no** rubric, **no** reviewer sub-agent, and **no** git machinery — it just keeps each turn honest so `/goal`'s own evaluator can do its job. (Want strong, independent review that reads the real diff and reruns tests? That's the `/loop-eng` command, not this.)
+This skill is the light companion for that loop. It adds **no** rubric, **no** reviewer sub-agent, and **no** git machinery — it just keeps each turn honest so `/goal`'s own evaluator can do its job.
 
 ## Launch
 
@@ -29,4 +29,4 @@ That's the whole discipline. Don't fabricate results (a faked "exit 0" ends the 
 
 ## Optional
 
-- If something **must not change** on the way (e.g. "don't delete or weaken tests"), add it to the `DONE WHEN` and show the relevant `git status` / `git diff` so the evaluator can see it. Note this is best-effort — a small evaluator reading a diff is a light check, not a guarantee. When you need that guaranteed, use `/loop-eng` (independent reviewer) or a script Stop hook.
+If something **must not change** on the way (e.g. "don't delete or weaken tests"), add it to the `DONE WHEN` and show the relevant `git status` / `git diff` so the evaluator can see it. Keep in mind a small evaluator reading a diff is a best-effort, light check — not a guarantee.

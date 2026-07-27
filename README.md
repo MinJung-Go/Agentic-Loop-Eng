@@ -104,6 +104,34 @@ A **lightweight, independent** way to run the discipline — it doesn't use the 
 
 So you don't reimplement either. The bundled `loop-engineering` skill just keeps each turn honest — make an increment, run the check, **surface the real output** — so `/goal`'s evaluator has facts to read. This is the quick "keep going until it works" path; it is **not** strong verification. For an independent reviewer that reads the real diff and reruns tests, use the [`/loop-eng` command](#usage-examples) instead.
 
+### How it works
+
+```
+  /goal "<REQUIREMENTS>.  DONE WHEN: <a check your own output can show>"
+        │
+        ▼
+  ┌─────────────────────────  one turn  ──────────────────────────┐
+  │                                                                │
+  │  ▸ the skill keeps the turn honest                             │
+  │      1. advance one real increment toward the requirements     │
+  │      2. run the check → paste the real command + output +      │
+  │         exit code into the turn                                │
+  │      3. never declare "done" yourself                          │
+  │                              │                                 │
+  │  ▸ /goal judges  (a *different* evaluator model)               │
+  │      reads only the transcript — cannot run tools / read files │
+  │                              │                                 │
+  │                       condition met?                           │
+  └──────────────┬────────────────────────────────┬───────────────┘
+                 │ no                              │ yes
+                 ▼                                 ▼
+     /goal auto-starts the next turn        /goal clears itself
+     (evaluator's reason carried               → the loop stops
+      forward as the next cue)
+```
+
+The division of labor: **`/goal` owns the loop and the (independent) verdict; the skill only owns surfacing honest evidence** — because the evaluator can judge nothing it can't see in the transcript.
+
 ### Walkthrough
 
 **1. Install the plugin** (once):

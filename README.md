@@ -94,7 +94,7 @@ Because the Reviewer runs the **same command your GitHub Action runs**, a green 
 
 ## Notes
 
-- The command prompt is written in Chinese (the author's working language); the agents and this README are in English. The workflow is language-agnostic — the Reviewer matches the language of your requirements while keeping the `APPROVED` / `NEEDS_ITERATION` keyword in English so the loop can parse it.
+- The command and agents are written in English, but the workflow is language-agnostic — the Reviewer matches the language of your requirements while keeping the `APPROVED` / `NEEDS_ITERATION` keyword in English so the loop can parse it.
 - The Reviewer runs your project's own test command for grounding; point it at whatever your repo documents (in `CLAUDE.md` / `AGENTS.md` / `README`).
 
 ## License

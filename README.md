@@ -97,14 +97,51 @@ Because the Reviewer runs the **same command your GitHub Action runs**, a green 
 
 ## Driving it autonomously with `/goal`
 
-Claude Code's `/goal <condition>` loops turn-by-turn on its own until a completion condition holds. Instead of pasting the whole methodology into the goal, invoke the bundled `loop-engineering` skill and let a crisp sentinel be the condition:
+Claude Code's `/goal <condition>` loops turn-by-turn on its own until a completion condition holds — a small, fast evaluator checks after each turn and starts the next one if it isn't met yet. Instead of pasting the whole methodology into the goal, invoke the bundled `loop-engineering` skill and let a crisp sentinel be the condition.
+
+### Walkthrough
+
+**1. Install the plugin** (once):
 
 ```
-/goal Use the loop-engineering skill to implement <requirements>.
-DONE WHEN: loop-impl-reviewer's latest verdict is APPROVED, every rubric item is SATISFIED, and the test command exits 0 — and that verdict appears verbatim in the final message.
+/plugin marketplace add MinJung-Go/claude-loop-eng
+/plugin install loop-eng@minjung-go
+/reload-plugins
 ```
 
-Why a sentinel: `/goal`'s completion check is a small, fast evaluator reading the transcript — it can't re-judge the whole methodology. So the **hard judgment stays with `loop-impl-reviewer`** (frozen rubric + real diff + real tests), and the evaluator only pattern-matches the `APPROVED` verdict it echoes. Pair with **auto mode** for unattended runs.
+**2. (Optional) enable auto mode** so the loop can run unattended without stopping for tool-permission prompts:
+
+```
+/auto
+```
+
+**3. Fire the goal.** Put the requirements in the directive and a checkable sentinel in `DONE WHEN`. Example — make the CI command pass:
+
+```
+/goal Use the loop-engineering skill to implement the following on a fresh isolation branch.
+REQUIREMENTS: make `npm run ci` pass on this branch — fix the failing type-checks and unit tests; do not weaken or delete the tests.
+DONE WHEN: loop-impl-reviewer's latest verdict is APPROVED, every rubric item is SATISFIED, and `npm run ci` exits 0 — and that verdict appears verbatim in the final message.
+```
+
+What now happens, hands-off, each turn = one round:
+- turn 1 freezes a rubric (e.g. `R1: \`npm run ci\` exits 0`, `R2: no test is deleted or weakened`) and does the first implement → checkpoint → review pass;
+- if the reviewer returns `NEEDS_ITERATION`, `/goal` automatically starts the next turn with the failing rubric IDs fed back;
+- when `loop-impl-reviewer` returns `APPROVED` with every item SATISFIED and `npm run ci` green, the turn echoes that verdict verbatim, the evaluator matches the sentinel, and **`/goal` clears itself** — the loop stops.
+
+**4. Watch or stop it:**
+
+```
+/goal            # show the active condition, runtime, turn count, token spend, last evaluator reason
+/goal clear      # stop early
+```
+
+When it finishes you're left with a clean squashed commit on the loop branch plus the review trail under `docs/reviews/loop-eng/…`, ready for you to push and let real CI confirm.
+
+### Why the sentinel matters
+
+`/goal`'s completion check is a small, fast evaluator reading the transcript — it **can't** re-judge the whole methodology, and it shouldn't be trusted to. So the **hard judgment stays with `loop-impl-reviewer`** (frozen rubric + real `git diff` + real tests), and the evaluator only pattern-matches the `APPROVED` verdict the orchestrator echoes. The orchestrator must never emit `APPROVED` itself — only relay it when it genuinely came from the reviewer — otherwise a fabricated sentinel would end the loop early. That single rule is what keeps autonomous `/goal` runs honest.
+
+> Any task works, not just CI — swap the `REQUIREMENTS` and `DONE WHEN` lines. For an interactive, single-shot run instead of an autonomous goal, use the `/loop-eng` command directly (see [Usage examples](#usage-examples)).
 
 ## Notes
 

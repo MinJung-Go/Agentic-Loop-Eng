@@ -60,17 +60,37 @@ docs/reviews/loop-eng/<slug>-<run>/
 /reload-plugins
 ```
 
-Then run, e.g.:
+## Usage examples
 
+### 1. Implement to a spec file
+```bash
+/loop-eng docs/specs/new-feature.md
+```
+
+### 2. Fix a bug with an explicit acceptance bar
 ```bash
 /loop-eng Add retry-with-exponential-backoff to fetch_url on 5xx responses, cap 3 retries --max 4
 ```
 
-Or point it at a spec file:
+### 3. Loop until the build / CI is green
+
+The Reviewer's gate is **tool-grounded**: every round it runs your project's own build/test command and only returns `APPROVED` when that command exits clean. So to "iterate until CI passes," make the CI command itself the acceptance bar:
 
 ```bash
-/loop-eng docs/specs/new-feature.md
+/loop-eng Make `npm run ci` pass on this branch — fix the failing type-checks and unit tests. Do not weaken or delete the tests. --max 6
 ```
+
+What happens each round:
+
+1. the rubric freezes an item like **`R1: \`npm run ci\` exits 0`**;
+2. the Implementer makes the smallest fix; the orchestrator checkpoint-commits it;
+3. the Reviewer **actually runs `npm run ci`** on the checkpoint —
+   - ❌ red → `NEEDS_ITERATION`, the failing output is fed back as the next directive;
+   - ✅ green **and** every rubric item SATISFIED → `APPROVED`.
+
+Because the Reviewer runs the **same command your GitHub Action runs**, a green loop means the pipeline should pass too — *before you ever push*. When it approves, you get one clean squashed commit ready to push and let CI confirm.
+
+> **Scope note:** the loop runs locally on an isolated branch and never auto-pushes, so it drives your code to a state that *will* pass CI rather than polling live GitHub Actions runs. A heavier variant that pushes each round and gates on the real Actions result (`gh run watch`) is possible but opt-in — [open an issue](https://github.com/MinJung-Go/claude-loop-eng/issues) if you want it.
 
 ## Notes
 

@@ -19,7 +19,8 @@ A Claude Code **plugin + marketplace** that packages a disciplined *Loop Enginee
 
 Preflight   clean working tree? → record base SHA → cut an isolated branch loop-eng/<slug>-<run>
 Freeze      write verbatim requirements.md + a frozen rubric.md (R1..Rn) — the fixed yardstick
-Each round  Implementer edits → orchestrator checkpoint-commits → Reviewer verifies
+Each round  Implementer(s) edit → orchestrator checkpoint-commits → Reviewer verifies
+              (one implementer, or several in parallel — each owning file-disjoint slices)
               git diff <base>..HEAD  +  runs the project's tests
               per-rubric verdict: R1 SATISFIED / R3 MISSING ...
             APPROVED  → done      NEEDS_ITERATION → feed failing R-ids back, next round
@@ -46,6 +47,7 @@ docs/reviews/loop-eng/<slug>-<run>/
 - **Freeze the rubric** — the same yardstick every round, so verdicts are comparable and don't drift round-to-round.
 - **Separate roles** — the Implementer never self-approves; the Reviewer never edits code. Approval is a gate, not a self-assessment.
 - **Git-native** — one round = one checkpoint = one review file, all on a throwaway branch. Bad rounds roll back; the human owns the merge.
+- **Cooperative parallelism, not a race** — when a round's work splits into file-disjoint slices, the orchestrator fans out several `loop-implementer`s in parallel (a flat set, no nesting, no separate workflow engine), each owning distinct files so their edits compose without conflict. They collaborate to cover the requirement together — it is *not* a tournament where one implementation wins. If the work can't be cleanly partitioned, it falls back to a single implementer.
 
 ## Install
 

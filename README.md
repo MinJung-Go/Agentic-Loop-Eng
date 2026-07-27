@@ -97,12 +97,12 @@ Because the Reviewer runs the **same command your GitHub Action runs**, a green 
 
 ## Driving it autonomously with `/goal`
 
-This is a **second, independent way** to run the discipline — it does not use the `/loop-eng` command at all. The insight: `/goal` already *is* a Loop Engineering loop. `/goal <condition>` supplies both halves for you:
+A **lightweight, independent** way to run the discipline — it doesn't use the `/loop-eng` command. The insight: `/goal` already *is* a loop. `/goal <condition>` supplies both halves:
 
 - **the loop** — after each turn it automatically starts the next until the condition holds;
-- **the gate/reviewer** — a small, fast evaluator checks the condition against the transcript after every turn.
+- **the judge** — a small, fast evaluator (a *different* model from the one working) checks the condition after every turn, reading only the transcript.
 
-So you don't reimplement a loop or a reviewer. The bundled `loop-engineering` skill supplies the other half — a disciplined per-turn implementer that **surfaces objective, tool-run evidence** so `/goal`'s built-in gate can judge on facts, not vibes.
+So you don't reimplement either. The bundled `loop-engineering` skill just keeps each turn honest — make an increment, run the check, **surface the real output** — so `/goal`'s evaluator has facts to read. This is the quick "keep going until it works" path; it is **not** strong verification. For an independent reviewer that reads the real diff and reruns tests, use the [`/loop-eng` command](#usage-examples) instead.
 
 ### Walkthrough
 
@@ -120,17 +120,19 @@ So you don't reimplement a loop or a reviewer. The bundled `loop-engineering` sk
 /auto
 ```
 
-**3. Fire the goal.** Requirements in the directive; an **objective, transcript-checkable** predicate in `DONE WHEN`. Example — make the CI command pass:
+**3. Fire the goal.** Requirements in the directive; a `DONE WHEN` your own output can demonstrate. Example — make the CI command pass:
 
 ```
-/goal Follow the loop-engineering skill. REQUIREMENTS: make `npm run ci` pass on this branch — fix the failing type-checks and unit tests; do not weaken or delete any test.
-DONE WHEN: the latest turn runs `npm run ci`, shows its full output, and it exits 0 — and no test file was deleted or weakened.
+/goal Follow the loop-engineering skill. REQUIREMENTS: make `npm run ci` pass on this branch — fix the failing type-checks and unit tests.
+DONE WHEN: the latest turn runs `npm run ci`, shows its full output, and it exits 0.
 ```
 
 What happens, hands-off:
 - **each turn**, the skill makes the next increment, then actually runs `npm run ci` and pastes the command + full output + exit code into the turn;
 - **`/goal`'s evaluator** reads that transcript and decides: not green → it automatically starts another turn (the failing output is the next turn's feedback);
-- green + condition satisfied → `/goal` **clears itself** and stops. No custom reviewer, no custom loop — `/goal` is both.
+- green → `/goal` **clears itself** and stops. No custom reviewer, no custom loop — `/goal` is both.
+
+Want to guard a constraint too (e.g. "don't delete or weaken tests")? Add it to the `DONE WHEN` and have the turn show `git diff` — but keep in mind a small evaluator reading a diff is a light check. When that guarantee matters, reach for `/loop-eng`.
 
 **4. Watch or stop it:**
 

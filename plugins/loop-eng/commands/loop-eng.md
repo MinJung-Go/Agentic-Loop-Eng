@@ -18,7 +18,7 @@ Derive the **REQUIREMENTS** as follows:
 
 First restate the derived REQUIREMENTS and the iteration cap briefly, so the user can see what you are about to run.
 
-> ⚠️ **The restatement is for the user only; it is NOT the basis for judgment.** The REQUIREMENTS passed to the implementer and reviewer must be the **user's verbatim input** (the `$ARGUMENTS` text / the full file contents) — never your restated, summarized, or reworded version. Otherwise the requirements drift in transit, and the reviewer, judging against a drifted standard, will hand out a false APPROVED.
+> **The restatement is for the user only; it is NOT the basis for judgment.** The REQUIREMENTS passed to the implementer and reviewer must be the **user's verbatim input** (the `$ARGUMENTS` text / the full file contents) — never your restated, summarized, or reworded version. Otherwise the requirements drift in transit, and the reviewer, judging against a drifted standard, will hand out a false APPROVED.
 
 ## Preflight (git prerequisites — mandatory before starting)
 
@@ -41,13 +41,32 @@ After cutting the branch, create the run directory and freeze the baseline (**re
    - Write each item as a decidable assertion ("fetch_url retries with exponential backoff on 5xx, capped at 3 retries"), not a subjective one ("elegant code");
    - For genuinely vague/contradictory points in the requirements, list them as a single item tagged `[AMBIGUOUS]`, and clarify with the user before starting the loop rather than deciding for them;
    - Once frozen, the rubric **stays fixed for the entire loop** — this is key: every round the reviewer ticks against **the same yardstick**, so reviews are comparable and don't oscillate. If mid-run you discover the rubric is missing items / needs changes, you must stop and tell the user, and only after the user confirms, start a new run directory — never silently change the yardstick in place.
+
+   **Example decomposition:**
+   - Requirement: "Fix divide() to raise ValueError on division by zero in calculator.py"
+   - Good rubric:
+     - R1: `divide(a, b)` exists in `calculator.py`.
+     - R2: When `b == 0`, `divide(a, b)` raises `ValueError` before any division.
+   - Bad rubric (adds scope):
+     - R3: `multiply()` also handles negative inputs correctly. (NOT in the requirement — reject.)
+
+   **Example for multi-part requirement:**
+   - Requirement: "Add retry-with-exponential-backoff to fetch_url on 5xx, cap at 3 retries"
+   - Good rubric:
+     - R1: `fetch_url` retries on HTTP 5xx status codes.
+     - R2: Retry delays follow exponential backoff (e.g., 1s, 2s, 4s).
+     - R3: Total retry count is capped at 3 attempts (initial + 2 retries).
 4. Tell the user the run directory path, and show the rubric to the user once (especially wait for confirmation on any `[AMBIGUOUS]` items before starting).
 
 > All on-disk writes are done by you (the Orchestrator); `loop-impl-reviewer` / `loop-implementer` only return text and never touch these files — this keeps them general and reusable.
 
 ## Loop (automatic mode: no mid-run stops, runs until APPROVED or the cap)
 
-Maintain a variable `feedback` (initially empty). Starting from round 1, run at most `max` rounds:
+Maintain two variables:
+- `feedback` (initially empty) — the previous round's remaining list / failing rubric IDs.
+- `rubric_state` (initially empty dict) — a running map of `R-id → latest_status` so you can detect regressions. After each review, update it with the status from the reviewer's coverage table; an item that was SATISFIED and is now MISSING/PARTIAL is a regression.
+
+Starting from round 1, run at most `max` rounds:
 
 **Round i:**
 
@@ -72,9 +91,10 @@ Maintain a variable `feedback` (initially empty). Starting from round 1, run at 
    - decision rule: **APPROVED if and only if every item is SATISFIED**; any PARTIAL/MISSING → **NEEDS_ITERATION**, with the remaining list referencing the failing rubric IDs directly (e.g. "R3 MISSING: empty body not handled"), so the implementer can act on exactly the right items next round.
 
 4. **Branch + regression guard**:
+   - After the reviewer's verdict, parse the coverage table and update `rubric_state` with each R-id's current status.
    - reviewer = **APPROVED** → break out of the loop and go to "Wrap-up".
    - reviewer = **NEEDS_ITERATION**:
-     - **Regression check**: if this round knocked a previously-SATISFIED rubric item back to MISSING/PARTIAL (a regression), this round's checkpoint made things worse → `git reset --hard <sha_{i-1}>` to discard this round, fold "which items regressed + don't break them again" into `feedback`, and go to the next round; otherwise keep this round's checkpoint.
+     - **Regression check**: compare the new `rubric_state` against the previous round's state. If any R-id went from SATISFIED to MISSING/PARTIAL (a regression), this round's checkpoint made things worse → `git reset --hard <sha_{i-1}>` to discard this round, fold "which items regressed + don't break them again" into `feedback`, and go to the next round; otherwise keep this round's checkpoint.
      - Assign the reviewer's remaining list to `feedback` and go to round i+1.
    - reviewer indicates **missing info / cannot decide / blocked** (neither a clear APPROVED nor an actionable NEEDS_ITERATION) → **stop the loop**, hand the info it needs / the blocker back to the user, and do not force another round (the loop branch is left as-is for the user to pick up).
 

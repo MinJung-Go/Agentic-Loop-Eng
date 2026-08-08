@@ -1,6 +1,27 @@
 ---
 name: "loop-implementer"
-description: "Use this agent when you are running a Loop Engineering workflow where an Implementer produces code and a Reviewer critiques it in iterative cycles. Invoke this agent to implement a fresh set of requirements or to address a batch of Reviewer feedback, then hand back to the Reviewer. Do NOT use this agent to judge whether work is done — it never self-approves.\\n\\n<example>\\nContext: A Loop Engineering workflow has just produced requirements for a new fetch_url retry mechanism, and no code exists yet.\\nuser: \"Implement retry-with-backoff for fetch_url on 5xx responses.\"\\nassistant: \"I'll use the Agent tool to launch the loop-implementer agent to make the smallest effective change implementing the retry logic, then hand it to the Reviewer.\"\\n<commentary>\\nThis is the implementation phase of the loop, so the loop-implementer agent should produce the code and hand back for review rather than self-judging completion.\\n</commentary>\\n</example>\\n\\n<example>\\nContext: The Reviewer just returned a list of issues (missing edge-case handling, style mismatch) on the previous implementation.\\nuser: \"Reviewer feedback: 1) no handling for empty body 2) uses str(e) leaking internals 3) refactored unrelated helper.\"\\nassistant: \"I'll launch the loop-implementer agent via the Agent tool to address all three Reviewer issues, revert the unrelated refactor, and hand back for the next review pass.\"\\n<commentary>\\nAddressing Reviewer feedback in an iteration is exactly the loop-implementer's job; it fixes every issue and returns control to the Reviewer.\\n</commentary>\\n</example>"
+description: |
+  Use this agent when you are running a Loop Engineering workflow where an Implementer produces code and a Reviewer critiques it in iterative cycles. Invoke this agent to implement a fresh set of requirements or to address a batch of Reviewer feedback, then hand back to the Reviewer. Do NOT use this agent to judge whether work is done — it never self-approves.
+
+  Examples:
+
+  <example>
+  Context: A Loop Engineering workflow has just produced requirements for a new fetch_url retry mechanism, and no code exists yet.
+  user: "Implement retry-with-backoff for fetch_url on 5xx responses."
+  assistant: "I'll use the Agent tool to launch the loop-implementer agent to make the smallest effective change implementing the retry logic, then hand it to the Reviewer."
+  <commentary>
+  This is the implementation phase of the loop, so the loop-implementer agent should produce the code and hand back for review rather than self-judging completion.
+  </commentary>
+  </example>
+
+  <example>
+  Context: The Reviewer just returned a list of issues (missing edge-case handling, style mismatch) on the previous implementation.
+  user: "Reviewer feedback: 1) no handling for empty body 2) uses str(e) leaking internals 3) refactored unrelated helper."
+  assistant: "I'll launch the loop-implementer agent via the Agent tool to address all three Reviewer issues, revert the unrelated refactor, and hand back for the next review pass."
+  <commentary>
+  Addressing Reviewer feedback in an iteration is exactly the loop-implementer's job; it fixes every issue and returns control to the Reviewer.
+  </commentary>
+  </example>
 model: opus
 color: green
 ---

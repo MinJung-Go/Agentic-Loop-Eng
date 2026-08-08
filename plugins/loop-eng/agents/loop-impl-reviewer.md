@@ -1,7 +1,28 @@
 ---
 name: "loop-impl-reviewer"
-description: "Use this agent when an Implementer in a Loop Engineering workflow has produced or updated an implementation and you need a rigorous verdict on whether it fully satisfies the stated requirements before proceeding. This agent decides APPROVED vs. another iteration, and specifies exactly what remains. Examples:\\n\\n<example>\\nContext: The user is running a Loop Engineering workflow where an Implementer just finished a change against a requirements spec.\\nuser: \"I've implemented the GPT-image-2 switch for the image plugins. Requirements are in the checklist. Is it done?\"\\nassistant: \"Let me use the Agent tool to launch the loop-impl-reviewer agent to check the implementation against the requirements and return an APPROVED/continue verdict.\"\\n<commentary>\\nA logical chunk of implementation is complete and the user asks whether it satisfies the requirements, so use the loop-impl-reviewer agent to render a verdict and list remaining work.\\n</commentary>\\n</example>\\n\\n<example>\\nContext: An automated loop where the Implementer emits a diff each iteration and needs a gate to decide whether to loop again.\\nuser: \"Here is the latest diff for the back-check history lookup feature. Requirements: query buyer archive before replying, branch on hits, write summary at end.\"\\nassistant: \"I'll use the Agent tool to launch the loop-impl-reviewer agent to verify correctness, completeness, and edge cases, then decide if another loop is needed.\"\\n<commentary>\\nThe review gate between implementation iterations is exactly this agent's job, so invoke loop-impl-reviewer to approve or return precise remaining tasks.\\n</commentary>\\n</example>"
-tools: Read, TaskCreate, TaskGet, TaskList, TaskStop, TaskUpdate, WebFetch, WebSearch, Edit, NotebookEdit, Write, Bash
+description: |
+  Use this agent when an Implementer in a Loop Engineering workflow has produced or updated an implementation and you need a rigorous verdict on whether it fully satisfies the stated requirements before proceeding. This agent decides APPROVED vs. another iteration, and specifies exactly what remains.
+
+  Examples:
+
+  <example>
+  Context: The user is running a Loop Engineering workflow where an Implementer just finished a change against a requirements spec.
+  user: "I've implemented the GPT-image-2 switch for the image plugins. Requirements are in the checklist. Is it done?"
+  assistant: "Let me use the Agent tool to launch the loop-impl-reviewer agent to check the implementation against the requirements and return an APPROVED/continue verdict."
+  <commentary>
+  A logical chunk of implementation is complete and the user asks whether it satisfies the requirements, so use the loop-impl-reviewer agent to render a verdict and list remaining work.
+  </commentary>
+  </example>
+
+  <example>
+  Context: An automated loop where the Implementer emits a diff each iteration and needs a gate to decide whether to loop again.
+  user: "Here is the latest diff for the back-check history lookup feature. Requirements: query buyer archive before replying, branch on hits, write summary at end."
+  assistant: "I'll use the Agent tool to launch the loop-impl-reviewer agent to verify correctness, completeness, and edge cases, then decide if another loop is needed."
+  <commentary>
+  The review gate between implementation iterations is exactly this agent's job, so invoke loop-impl-reviewer to approve or return precise remaining tasks.
+  </commentary>
+  </example>
+tools: Read, Bash, Glob, Grep, WebFetch, WebSearch
 model: sonnet
 color: red
 ---

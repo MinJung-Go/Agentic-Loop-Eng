@@ -1,14 +1,10 @@
 # Loop Engineering for Claude Code
 
-<div align="center">
-
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-D97757?logo=anthropic&logoColor=white)](https://www.anthropic.com/claude-code)
 [![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen.svg)](https://github.com/MinJung-Go/claude-loop-eng/issues)
 
 [What's inside](#whats-inside) • [How the loop works](#how-the-loop-works) • [Install](#install) • [Usage examples](#usage-examples) • [Driving it autonomously with /goal](#driving-it-autonomously-with-goal) • [Notes](#notes) • [License](#license)
-
-</div>
 
 ---
 

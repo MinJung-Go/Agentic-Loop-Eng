@@ -1,5 +1,17 @@
 # Loop Engineering for Claude Code
 
+<div align="center">
+
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-D97757?logo=anthropic&logoColor=white)](https://www.anthropic.com/claude-code)
+[![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen.svg)](https://github.com/MinJung-Go/claude-loop-eng/issues)
+
+[What's inside](#whats-inside) • [How the loop works](#how-the-loop-works) • [Install](#install) • [Usage examples](#usage-examples) • [Driving it autonomously with /goal](#driving-it-autonomously-with-goal) • [Notes](#notes) • [License](#license)
+
+</div>
+
+---
+
 A Claude Code **plugin + marketplace** that packages a disciplined *Loop Engineering* workflow: a `/loop-eng` command drives an **Implementer** and a **Reviewer** subagent through `generate → critique → revise` cycles until every acceptance-criterion is met — grounded in git and real test runs, not vibes.
 
 > Loop Engineering is the 2026 name for the evaluator-optimizer / reflect-refine pattern (research lineage: Self-Refine → Reflexion → CRITIC). One agent generates, a *different* agent critiques against a fixed rubric, and the loop repeats until it passes or hits a limit.

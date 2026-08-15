@@ -194,6 +194,22 @@ Want to guard a constraint too (e.g. "don't delete or weaken tests")? Add it to 
 - The command and agents are written in English, but the workflow is language-agnostic — the Reviewer matches the language of your requirements while keeping the `APPROVED` / `NEEDS_ITERATION` keyword in English so the loop can parse it.
 - The Reviewer runs your project's own test command for grounding; point it at whatever your repo documents (in `CLAUDE.md` / `AGENTS.md` / `README`).
 
+## Contributing
+
+Contributions are welcome! Please feel free to submit an [Issue](https://github.com/MinJung-Go/Agentic-Loop-Eng/issues) or Pull Request.
+
 ## License
 
-MIT © MinJung-Go
+[MIT License](LICENSE), © 2026 MinJung-Go.
+
+---
+
+<div align="center">
+
+**If this project helps you, please give it a Star!**
+
+Questions or suggestions? Open an [Issue](https://github.com/MinJung-Go/Agentic-Loop-Eng/issues)
+
+Made by [MinJung-Go](https://github.com/MinJung-Go)
+
+</div>

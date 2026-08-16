@@ -43,7 +43,7 @@ Initial release: the Loop Engineering plugin + a single-plugin marketplace.
 - **`loop-impl-reviewer` agent** — the binary quality gate; judges the real
   `git diff` against the rubric and reruns the project's tests for grounding.
 - **Marketplace `minjung-go`** — installable via
-  `/plugin marketplace add MinJung-Go/claude-loop-eng`.
+  `/plugin marketplace add MinJung-Go/Agentic-Loop-Eng`.
 
-[0.2.0]: https://github.com/MinJung-Go/claude-loop-eng/releases/tag/v0.2.0
-[0.1.0]: https://github.com/MinJung-Go/claude-loop-eng/releases/tag/v0.1.0
+[0.2.0]: https://github.com/MinJung-Go/Agentic-Loop-Eng/releases/tag/v0.2.0
+[0.1.0]: https://github.com/MinJung-Go/Agentic-Loop-Eng/releases/tag/v0.1.0

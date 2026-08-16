@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-D97757?logo=anthropic&logoColor=white)](https://www.anthropic.com/claude-code)
-[![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen.svg)](https://github.com/MinJung-Go/claude-loop-eng/issues)
+[![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen.svg)](https://github.com/MinJung-Go/Agentic-Loop-Eng/issues)
 
 [What's inside](#whats-inside) • [How the loop works](#how-the-loop-works) • [Install](#install) • [Usage examples](#usage-examples) • [Driving it autonomously with /goal](#driving-it-autonomously-with-goal) • [Notes](#notes) • [License](#license)
 
@@ -62,7 +62,7 @@ docs/reviews/loop-eng/<slug>-<run>/
 
 ```bash
 # add this marketplace
-/plugin marketplace add MinJung-Go/claude-loop-eng
+/plugin marketplace add MinJung-Go/Agentic-Loop-Eng
 
 # install the plugin
 /plugin install loop-eng@minjung-go
@@ -101,7 +101,7 @@ What happens each round:
 
 Because the Reviewer runs the **same command your GitHub Action runs**, a green loop means the pipeline should pass too — *before you ever push*. When it approves, you get one clean squashed commit ready to push and let CI confirm.
 
-> **Scope note:** the loop runs locally on an isolated branch and never auto-pushes, so it drives your code to a state that *will* pass CI rather than polling live GitHub Actions runs. A heavier variant that pushes each round and gates on the real Actions result (`gh run watch`) is possible but opt-in — [open an issue](https://github.com/MinJung-Go/claude-loop-eng/issues) if you want it.
+> **Scope note:** the loop runs locally on an isolated branch and never auto-pushes, so it drives your code to a state that *will* pass CI rather than polling live GitHub Actions runs. A heavier variant that pushes each round and gates on the real Actions result (`gh run watch`) is possible but opt-in — [open an issue](https://github.com/MinJung-Go/Agentic-Loop-Eng/issues) if you want it.
 
 ## Driving it autonomously with `/goal`
 
@@ -145,7 +145,7 @@ The division of labor: **`/goal` owns the loop and the (independent) verdict; th
 **1. Install the plugin** (once):
 
 ```
-/plugin marketplace add MinJung-Go/claude-loop-eng
+/plugin marketplace add MinJung-Go/Agentic-Loop-Eng
 /plugin install loop-eng@minjung-go
 /reload-plugins
 ```
